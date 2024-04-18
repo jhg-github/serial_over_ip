@@ -1,4 +1,6 @@
 import socket
+import serial
+
 
 def start_serial_server(host, port):
     try:
@@ -8,40 +10,32 @@ def start_serial_server(host, port):
         server_socket.bind((host, port))
         # Start listening for incoming connections
         server_socket.listen(1)
-        
+
         print(f"Serial server listening on {host}:{port}")
+        ser = serial.Serial('/dev/usb_magna_geni', 115200, timeout=0.05)
 
         # Accept incoming connections
         while True:
             client_socket, client_address = server_socket.accept()
             print(f"Connection established with {client_address}")
-            
-            # Handle the connection in a separate thread or process
-            # For simplicity, let's just close the connection here
-
-            # # Receive data from the server
-            # data = client_socket.recv(1024)  # Receive up to 1024 bytes of data
-            # print("Received data:", data.decode('utf-8'))
-            # # Send data to the client
-            # client_socket.send(data)
-
-            
-            # # Receive data from the server
-            # data = client_socket.recv(1024)  # Receive up to 1024 bytes of data
-            # print("Received data:", data.decode('utf-8'))
-            # # Send data to the client
-            # client_socket.send(data)
 
             # Wait to receive data from the client
             while True:
                 try:
-                    data = client_socket.recv(1024)  # Receive up to 1024 bytes of data
-                    if not data:
+                    request = client_socket.recv(1024)  # Receive up to 1024 bytes of data
+                    if not request:
                         print(f"Client {client_address} closed the connection")
                         break  # No more data to receive, exit the loop
-                    print("Received data:", data.decode('utf-8'))
-                    # Send data to the client
-                    client_socket.send(data)
+                    print("Request data:", request)
+                    # Send request to serial port
+                    ser.write(request)
+                    while True:
+                        response = ser.read(256)
+                        if len(response) > 0:
+                            print("Response data:", response)
+                            break
+                    # Send response to the client
+                    client_socket.send(response)
                 except ConnectionResetError:
                     print(f"Client {client_address} forcibly closed the connection")
                     break
@@ -56,9 +50,9 @@ def start_serial_server(host, port):
 
 def main():
     # Server configuration
-    server_host = '192.168.1.175'   # rpi address
+    server_host = '10.5.42.163'   # rpi address
     server_port = 12345  # Example port number
-    
+
     # Start the serial server
     start_serial_server(server_host, server_port)
 
