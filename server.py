@@ -50,7 +50,7 @@ def start_serial_server(host, port):
 
 def main():
     # Server configuration
-    server_host = '10.5.42.163'   # rpi address
+    server_host = '0.0.0.0'   # rpi address
     server_port = 12345  # Example port number
 
     # Start the serial server
