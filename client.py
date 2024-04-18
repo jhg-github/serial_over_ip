@@ -32,7 +32,7 @@ def connect_to_serial_server(server_ip, server_port):
 
 def main():
     # Serial server configuration
-    serial_server_ip = '10.5.42.163'   # rpi address
+    serial_server_ip = '0.0.0.0'   # rpi address
     serial_server_port = 12345
 
     # Connect to the serial server
